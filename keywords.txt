@@ -1,0 +1,23 @@
+#######################################
+# IDE Map for Reefwing IMU Types Library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Reefwing_imuTypes KEYWORD1
+EulerAngles KEYWORD1
+InertialMessage KEYWORD1
+RawData KEYWORD1
+ScaledData  KEYWORD1
+TempData    KEYWORD1
+SensorData  KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
