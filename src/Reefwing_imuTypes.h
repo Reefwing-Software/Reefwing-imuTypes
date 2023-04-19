@@ -66,8 +66,10 @@ class Quaternion {
         Quaternion getConjugate(void) const;
         EulerAngles getEulerAngles(void) const;
 
+        float q[4];     //  Euler Parameters
+        uint32_t  timeStamp;
+
     private:
-        float q[4];
         float radiansToDegrees (float radians) const;
 };
 
