@@ -18,6 +18,8 @@
 #ifndef Reefwing_imuTypes_h
 #define Reefwing_imuTypes_h
 
+#include <Arduino.h>
+
 struct EulerAngles {
   float roll;     /* rotation around x axis in degrees */
   float pitch;    /* rotation around y axis in degrees */
