@@ -55,6 +55,25 @@ struct SensorData {
   uint32_t gTimeStamp, aTimeStamp, mTimeStamp;
 };
 
+struct Ping {
+  char *interface;
+  char *dName;
+  char *sNumber;
+};
+
+struct NetworkAnnouncement {
+  uint16_t sync;
+  char *displayName;
+  char *serialNumber;
+  char *ipAddress;
+  uint16_t portTCP;
+  uint16_t sendUDP;
+  uint16_t receiveUDP;
+  uint8_t rssiPercentage;
+  uint8_t batteryPercentage;
+  uint8_t chargingStatus;
+};
+
 /******************************************************************
  *
  * Quaternion Class Definition - 

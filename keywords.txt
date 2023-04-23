@@ -13,6 +13,7 @@ RawData KEYWORD1
 ScaledData  KEYWORD1
 TempData    KEYWORD1
 SensorData  KEYWORD1
+NetworkAnnouncement KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
