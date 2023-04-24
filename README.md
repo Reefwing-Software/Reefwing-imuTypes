@@ -18,6 +18,8 @@
 - ScaledData
 - TempData
 - SensorData
+- Ping
+- NetworkAnnouncement
 
 ## Classes Defined in Library
 

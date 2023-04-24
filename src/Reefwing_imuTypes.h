@@ -5,10 +5,11 @@
   @copyright  Please see the accompanying LICENSE file
 
   Code:        David Such
-  Version:     1.0.0
-  Date:        19/04/23
+  Version:     1.0.1
+  Date:        24/04/23
 
-  1.0.0     Original Release.       19/04/23
+  1.0.0     Original Release.               19/04/23
+  1.0.1     Minor documentation changes.    24/04/23
 
   Credit - Uses the Madgwick Quaternion Class.
            (http://www.x-io.co.uk/quaternions/)
@@ -91,7 +92,7 @@ class Quaternion {
         uint32_t  timeStamp;
 
     private:
-        float radiansToDegrees (float radians) const;
+        float radiansToDegrees(float radians) const;
 };
 
 #endif

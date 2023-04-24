@@ -13,11 +13,17 @@ RawData KEYWORD1
 ScaledData  KEYWORD1
 TempData    KEYWORD1
 SensorData  KEYWORD1
+Ping    KEYWORD1
 NetworkAnnouncement KEYWORD1
+Quaternion  KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
+
+getConjugate    KEYWORD2
+getEulerAngles  KEYWORD2
+radiansToDegrees    KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
