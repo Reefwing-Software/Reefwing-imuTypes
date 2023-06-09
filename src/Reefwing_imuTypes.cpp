@@ -1,61 +1,110 @@
-/*
-    Quaternion.cpp
-    Author: Seb Madgwick
+/******************************************************************
+  @file       Reefwing_imuTypes.cpp
+  @brief      Common structs, enums and classes for Reefwing IMU Libraries
+  @author     David Such
+  @copyright  Please see the accompanying LICENSE file
 
-    C++ library for basic usage of quaternions.
-    See: http://www.x-io.co.uk/quaternions/
-*/
+  Code:        David Such
+  Version:     2.0.0
+  Date:        27/05/23
 
-//------------------------------------------------------------------------------
-// Includes
+  1.0.0     Original Release.               19/04/23
+  1.0.1     Minor documentation changes.    24/04/23
+  2.0.0     Modified Quaternion class.      27/05/23
+
+  Credit - Uses a modified version of the Madgwick Quaternion Class.
+           (http://www.x-io.co.uk/quaternions/)
+
+******************************************************************/
 
 #include <Reefwing_imuTypes.h>
 #include <math.h>
 
-//------------------------------------------------------------------------------
-// Variables
+/******************************************************************
+ *
+ * Quarternion Implementation - 
+ * 
+ ******************************************************************/
 
-float q[4];
-
-//------------------------------------------------------------------------------
-// Methods
-
-Quaternion::Quaternion(void) {
-    q[0] = 1.0f;
-    q[1] = 0.0f;
-    q[2] = 0.0f;
-    q[3] = 0.0f;
+Quaternion::Quaternion() {
+  reset();
 }
 
-Quaternion::Quaternion(const float w, const float x, const float y, const float z) {
-    q[0] = w;
-    q[1] = x;
-    q[2] = y;
-    q[3] = z;
+Quaternion::Quaternion(float w, float x, float y, float z) {
+  q0 = w;
+  q1 = x;
+  q2 = y;
+  q3 = z;
 }
 
-Quaternion Quaternion::getConjugate(void) const {
+Quaternion::Quaternion(float yaw, float pitch, float roll) {
+  //  Converts Euler Angles,  yaw (Z), pitch (Y), and roll (X) in radians
+  //  to a quaternion.
+  //  ref: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+
+  float cy = cos(yaw * 0.5);
+  float sy = sin(yaw * 0.5);
+  float cp = cos(pitch * 0.5);
+  float sp = sin(pitch * 0.5);
+  float cr = cos(roll * 0.5);
+  float sr = sin(roll * 0.5);
+
+  q0 = cr * cp * cy + sr * sp * sy;
+  q1 = sr * cp * cy - cr * sp * sy;
+  q2 = cr * sp * cy + sr * cp * sy;
+  q3 = cr * cp * sy - sr * sp * cy;
+}
+
+void Quaternion::reset() {
+  q0 = 1.0;
+  q1 = q2 = q3 = 0.0;
+}
+
+Quaternion Quaternion::getConjugate() {
     Quaternion conjugate;
-    conjugate.q[0] = q[0];
-    conjugate.q[1] = -q[1];
-    conjugate.q[2] = -q[2];
-    conjugate.q[3] = -q[3];
+
+    conjugate.q0 = q0;
+    conjugate.q1 = -q1;
+    conjugate.q2 = -q2;
+    conjugate.q3 = -q3;
+
     return conjugate;
 }
 
-EulerAngles Quaternion::getEulerAngles(void) const {
+EulerAngles Quaternion::getEulerAngles() {
+    //  Madgwick Version
     EulerAngles eulerAngles;
 
-    eulerAngles.roll = radiansToDegrees(atan2(2.0f * (q[2] * q[3] - q[0] * q[1]), 2.0f * q[0] * q[0] - 1.0f + 2.0f * q[3] * q[3]));
-    eulerAngles.pitch = radiansToDegrees(-atan((2.0f * (q[1] * q[3] + q[0] * q[2])) / sqrt(1.0f - pow((2.0f * q[1] * q[3] + 2.0f * q[0] * q[2]), 2.0f))));
-    eulerAngles.yaw = radiansToDegrees(atan2(2.0f * (q[1] * q[2] - q[0] * q[3]), 2.0f * q[0] * q[0] - 1.0f + 2.0f * q[1] * q[1]));
+    eulerAngles.roll = radiansToDegrees(atan2(2.0f * (q2 * q3 - q0 * q1), 2.0f * q0 * q0 - 1.0f + 2.0f * q3 * q3));
+    eulerAngles.pitch = radiansToDegrees(-atan((2.0f * (q1 * q3 + q0 * q2)) / sqrt(1.0f - pow((2.0f * q1 * q3 + 2.0f * q0 * q2), 2.0f))));
+    eulerAngles.yaw = radiansToDegrees(atan2(2.0f * (q1 * q2 - q0 * q3), 2.0f * q0 * q0 - 1.0f + 2.0f * q1 * q1));
 
     return eulerAngles;
 }
 
-float Quaternion::radiansToDegrees (float radians) const {
-    return 57.2957795130823f * radians;
+EulerAngles Quaternion::toEulerAngles(float declination) {
+  //  Converts a quaternion to Euler Angles
+  //  ref: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+
+  EulerAngles angles;
+
+  angles.yawRadians   = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);   
+  angles.pitchRadians = -asin(2.0f * (q1 * q3 - q0 * q2));
+  angles.rollRadians  = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
+
+  angles.pitch = angles.pitchRadians * 180.0f / M_PI;
+  angles.yaw   = angles.yawRadians * 180.0f / M_PI; 
+  angles.roll  = angles.rollRadians * 180.0f / M_PI;
+
+  // Convert yaw to heading (normal compass degrees)   
+  if (angles.yaw < 0) angles.yaw = angles.yaw + 360.0;
+  if (angles.yaw >= 360.0) angles.yaw = angles.yaw - 360.0;
+
+  angles.heading = angles.yaw - declination; // You need to subtract a positive declination.
+
+  return angles;
 }
 
-//------------------------------------------------------------------------------
-// End of file
+float Quaternion::radiansToDegrees (float radians) {
+    return 57.2957795130823f * radians;     //  180/PI * radians
+}

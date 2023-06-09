@@ -1,17 +1,18 @@
 /******************************************************************
   @file       Reefwing_imuTypes.h
-  @brief      Common structs, enums and classes for Reefwing Libraries
+  @brief      Common structs, enums and classes for Reefwing IMU Libraries
   @author     David Such
   @copyright  Please see the accompanying LICENSE file
 
   Code:        David Such
-  Version:     1.0.1
-  Date:        24/04/23
+  Version:     2.0.0
+  Date:        27/05/23
 
   1.0.0     Original Release.               19/04/23
   1.0.1     Minor documentation changes.    24/04/23
+  2.0.0     Modified Quaternion class.      27/05/23
 
-  Credit - Uses the Madgwick Quaternion Class.
+  Credit - Uses a modified version of the Madgwick Quaternion Class.
            (http://www.x-io.co.uk/quaternions/)
 
 ******************************************************************/
@@ -21,10 +22,30 @@
 
 #include <Arduino.h>
 
+/******************************************************************
+ *
+ * I2C Device Addresses - 
+ * 
+ ******************************************************************/
+
+#define LSM9DS1AG_ADDRESS 0x6B  //  Address of accelerometer & gyroscope
+#define LSM9DS1M_ADDRESS  0x1E  //  Address of magnetometer 
+
+#define HTS221_ADDRESS    0x5F  //  Nano 33 BLE Sense Rev 1 Sensor - temp/humidity
+#define HS3003_ADDRESS    0x44  //  Nano 33 BLE Sense Rev 2 Sensor - temp/humidity
+
+/******************************************************************
+ *
+ * Structs - 
+ * 
+ ******************************************************************/
+
 struct EulerAngles {
   float roll;     /* rotation around x axis in degrees */
   float pitch;    /* rotation around y axis in degrees */
   float yaw;      /* rotation around z axis in degrees */
+  float heading;  /* rotation relative to magnetic north */
+  float rollRadians, pitchRadians, yawRadians;
   uint32_t  timeStamp;
 };
 
@@ -56,25 +77,6 @@ struct SensorData {
   uint32_t gTimeStamp, aTimeStamp, mTimeStamp;
 };
 
-struct Ping {
-  char *interface;
-  char *dName;
-  char *sNumber;
-};
-
-struct NetworkAnnouncement {
-  uint16_t sync;
-  char *displayName;
-  char *serialNumber;
-  char *ipAddress;
-  uint16_t portTCP;
-  uint16_t sendUDP;
-  uint16_t receiveUDP;
-  uint8_t rssiPercentage;
-  uint8_t batteryPercentage;
-  uint8_t chargingStatus;
-};
-
 /******************************************************************
  *
  * Quaternion Class Definition - 
@@ -83,16 +85,24 @@ struct NetworkAnnouncement {
 
 class Quaternion {
     public:
-        Quaternion(void);
-        Quaternion(const float w, const float x, const float y, const float z);
-        Quaternion getConjugate(void) const;
-        EulerAngles getEulerAngles(void) const;
+        Quaternion();
+        Quaternion(float w, float x, float y, float z);
+        Quaternion(float yaw, float pitch, float roll);
 
-        float q[4];     //  Euler Parameters
+        Quaternion getConjugate(void);
+        EulerAngles getEulerAngles();
+        EulerAngles toEulerAngles(float declination = 0.0);
+
+        void reset();
+
+        float q0, q1, q2, q3;      //  Euler Parameters
         uint32_t  timeStamp;
 
     private:
-        float radiansToDegrees(float radians) const;
+        float radiansToDegrees(float radians);
+
+        float eInt[3] = {0.0f, 0.0f, 0.0f};       //  Vector to hold integral error for Mahony filter
+        float att[4] = {1.0f, 0.0f, 0.0f, 0.0f};  //  Attitude quaternion for complementary filter
 };
 
 #endif
