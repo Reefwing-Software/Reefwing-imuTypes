@@ -1,17 +1,29 @@
 /******************************************************************
   @file       Reefwing_imuTypes.cpp
-  @brief      Common structs, enums and classes for Reefwing IMU Libraries
+  @brief      Common structs, enums and classes for the Reefwing IMU 
+              Libraries
   @author     David Such
   @copyright  Please see the accompanying LICENSE file
 
   Code:        David Such
-  Version:     2.0.1
-  Date:        09/06/23
+  Version:     2.0.2
+  Date:        17/06/23
 
   1.0.0     Original Release.               19/04/23
   1.0.1     Minor documentation changes.    24/04/23
   2.0.0     Modified Quaternion class.      27/05/23
   2.0.1     Added I2C addresses             09/06/23
+  2.0.2     Added xiao Sense support        17/06/23
+
+  There are two conventions for quaternions, Hamilton and JPL. 
+  The difference between the two conventions is the relation 
+  between the three imaginary bases. In the Hamilton convention, 
+  ijk = −1, while JPL defines ijk = 1. As consequences, the 
+  multiplication of quaternions and the transformation between 
+  quaternions and other rotation parameterizations differ with 
+  the quaternion convention used.
+
+  We use the Hamilton Convention.
 
   Credit - Uses a modified version of the Madgwick Quaternion Class.
            (http://www.x-io.co.uk/quaternions/)
@@ -32,6 +44,7 @@ Quaternion::Quaternion() {
 }
 
 Quaternion::Quaternion(float w, float x, float y, float z) {
+  //  Hamilton Quaternion - w is the first component
   q0 = w;
   q1 = x;
   q2 = y;
@@ -86,6 +99,8 @@ EulerAngles Quaternion::getEulerAngles() {
 EulerAngles Quaternion::toEulerAngles(float declination) {
   //  Converts a quaternion to Euler Angles
   //  ref: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  //  This implementation assumes the normalized quaternion
+  //  converts to Euler angles in 3-2-1 sequence.
 
   EulerAngles angles;
 

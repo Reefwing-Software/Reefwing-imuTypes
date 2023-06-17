@@ -1,17 +1,29 @@
 /******************************************************************
   @file       Reefwing_imuTypes.h
-  @brief      Common structs, enums and classes for Reefwing IMU Libraries
+  @brief      Common structs, enums and classes for the Reefwing IMU 
+              Libraries
   @author     David Such
   @copyright  Please see the accompanying LICENSE file
 
   Code:        David Such
-  Version:     2.0.1
-  Date:        09/06/23
+  Version:     2.0.2
+  Date:        17/06/23
 
   1.0.0     Original Release.               19/04/23
   1.0.1     Minor documentation changes.    24/04/23
   2.0.0     Modified Quaternion class.      27/05/23
   2.0.1     Added I2C addresses             09/06/23
+  2.0.2     Added xiao Sense support        17/06/23
+
+  There are two conventions for quaternions, Hamilton and JPL. 
+  The difference between the two conventions is the relation 
+  between the three imaginary bases. In the Hamilton convention, 
+  ijk = −1, while JPL defines ijk = 1. As consequences, the 
+  multiplication of quaternions and the transformation between 
+  quaternions and other rotation parameterizations differ with 
+  the quaternion convention used.
+
+  We use the Hamilton Convention.
 
   Credit - Uses a modified version of the Madgwick Quaternion Class.
            (http://www.x-io.co.uk/quaternions/)
@@ -34,6 +46,8 @@
 
 #define HTS221_ADDRESS    0x5F  //  Nano 33 BLE Sense Rev 1 Sensor - temp/humidity
 #define HS3003_ADDRESS    0x44  //  Nano 33 BLE Sense Rev 2 Sensor - temp/humidity
+
+#define LSM6DS3_ADDRESS   0x6A  //  Seeed Studios xiao Sense gyro/accelerometer
 
 /******************************************************************
  *
