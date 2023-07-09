@@ -6,6 +6,7 @@
 
  - [ReefwingAHRS](https://github.com/Reefwing-Software/Reefwing-AHRS)
  - [ReefwingLSM9DS1](https://github.com/Reefwing-Software/Reefwing-LSM9DS1)
+ - [ReefwingMPU6x00](https://github.com/Reefwing-Software/MPU6x00)
  - [Reefwing_xIMU3](https://github.com/Reefwing-Software)
 
  This common library header is to prevent duplicate definition of similar types, classes and enums. It also ensures that changes will flow through to all of the libraries.
