@@ -13,6 +13,7 @@ RawData KEYWORD1
 ScaledData  KEYWORD1
 TempData    KEYWORD1
 SensorData  KEYWORD1
+VectorData  KEYWORD1
 Quaternion  KEYWORD1
 
 #######################################

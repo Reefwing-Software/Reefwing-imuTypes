@@ -6,14 +6,15 @@
   @copyright  Please see the accompanying LICENSE file
 
   Code:        David Such
-  Version:     2.0.2
-  Date:        17/06/23
+  Version:     2.0.3
+  Date:        02/08/23
 
   1.0.0     Original Release.               19/04/23
   1.0.1     Minor documentation changes.    24/04/23
   2.0.0     Modified Quaternion class.      27/05/23
   2.0.1     Added I2C addresses             09/06/23
   2.0.2     Added xiao Sense support        17/06/23
+  2.0.3     Vector Data Type added          02/08/23
 
   There are two conventions for quaternions, Hamilton and JPL. 
   The difference between the two conventions is the relation 
@@ -37,7 +38,7 @@
 
 /******************************************************************
  *
- * I2C Device Addresses - 
+ * I2C IMU Device Addresses - 
  * 
  ******************************************************************/
 
@@ -48,6 +49,9 @@
 #define HS3003_ADDRESS    0x44  //  Nano 33 BLE Sense Rev 2 Sensor - temp/humidity
 
 #define LSM6DS3_ADDRESS   0x6A  //  Seeed Studios xiao Sense gyro/accelerometer
+
+#define MPU6000_ADDRESS   0x68  //  TDK InvenSense MPU6x00 gyro/accelerometer
+#define MPU6050_ADDRESS   0x68  //  TDK InvenSense MPU6050 gyro/accelerometer
 
 /******************************************************************
  *
@@ -90,6 +94,10 @@ struct SensorData {
   float gx, gy, gz;
   float mx, my, mz;
   uint32_t gTimeStamp, aTimeStamp, mTimeStamp;
+};
+
+struct VectorData {
+  float x, y, z;
 };
 
 /******************************************************************
