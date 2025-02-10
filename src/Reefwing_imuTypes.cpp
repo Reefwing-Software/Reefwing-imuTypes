@@ -6,15 +6,17 @@
   @copyright  Please see the accompanying LICENSE file
 
   Code:        David Such
-  Version:     2.0.3
-  Date:        02/08/23
+  Version:     2.0.4
+  Date:        20/11/24
 
-  1.0.0     Original Release.               19/04/23
-  1.0.1     Minor documentation changes.    24/04/23
-  2.0.0     Modified Quaternion class.      27/05/23
-  2.0.1     Added I2C addresses             09/06/23
-  2.0.2     Added xiao Sense support        17/06/23
-  2.0.3     Vector Data Type added          02/08/23
+  1.0.0     Original Release.                 19/04/23
+  1.0.1     Minor documentation changes.      24/04/23
+  2.0.0     Modified Quaternion class.        27/05/23
+  2.0.1     Added I2C addresses               09/06/23
+  2.0.2     Added xiao Sense support          17/06/23
+  2.0.3     Vector Data Type added            02/08/23
+  2.0.4     Optimised Quaternion calculations 20/11/24
+
 
   There are two conventions for quaternions, Hamilton and JPL. 
   The difference between the two conventions is the relation 
@@ -87,12 +89,27 @@ Quaternion Quaternion::getConjugate() {
 }
 
 EulerAngles Quaternion::getEulerAngles() {
-    //  Madgwick Version
+    // Madgwick Version with optimization
     EulerAngles eulerAngles;
 
-    eulerAngles.roll = radiansToDegrees(atan2(2.0f * (q2 * q3 - q0 * q1), 2.0f * q0 * q0 - 1.0f + 2.0f * q3 * q3));
-    eulerAngles.pitch = radiansToDegrees(-atan((2.0f * (q1 * q3 + q0 * q2)) / sqrt(1.0f - pow((2.0f * q1 * q3 + 2.0f * q0 * q2), 2.0f))));
-    eulerAngles.yaw = radiansToDegrees(atan2(2.0f * (q1 * q2 - q0 * q3), 2.0f * q0 * q0 - 1.0f + 2.0f * q1 * q1));
+    // Precompute repeated terms
+    float q0q0 = q0 * q0;
+    float q1q1 = q1 * q1;
+    float q2q2 = q2 * q2;
+    float q3q3 = q3 * q3;
+
+    float q0q1 = q0 * q1;
+    float q0q2 = q0 * q2;
+    float q0q3 = q0 * q3;
+    float q1q2 = q1 * q2;
+    float q1q3 = q1 * q3;
+    float q2q3 = q2 * q3;
+
+    float sin_pitch = 2.0f * (q1q3 + q0q2);
+
+    eulerAngles.roll = radiansToDegrees(atan2(2.0f * (q2q3 - q0q1), 2.0f * q0q0 - 1.0f + 2.0f * q3q3));
+    eulerAngles.pitch = radiansToDegrees(-atan(sin_pitch / sqrt(1.0f - sin_pitch * sin_pitch)));
+    eulerAngles.yaw = radiansToDegrees(atan2(2.0f * (q1q2 - q0q3), 2.0f * q0q0 - 1.0f + 2.0f * q1q1));
 
     return eulerAngles;
 }
@@ -105,19 +122,23 @@ EulerAngles Quaternion::toEulerAngles(float declination) {
 
   EulerAngles angles;
 
-  angles.yawRadians   = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);   
-  angles.pitchRadians = -asin(2.0f * (q1 * q3 - q0 * q2));
-  angles.rollRadians  = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
+  float q0q0 = q0 * q0;
+  float q1q1 = q1 * q1;
+  float q2q2 = q2 * q2;
+  float q3q3 = q3 * q3;
 
-  angles.pitch = angles.pitchRadians * 180.0f / M_PI;
-  angles.yaw   = angles.yawRadians * 180.0f / M_PI; 
-  angles.roll  = angles.rollRadians * 180.0f / M_PI;
+  angles.yawRadians = atan2(2.0f * (q1 * q2 + q0 * q3), q0q0 + q1q1 - q2q2 - q3q3);
+  angles.pitchRadians = -asin(fmax(-1.0f, fmin(1.0f, 2.0f * (q1 * q3 - q0 * q2))));
+  angles.rollRadians = atan2(2.0f * (q0 * q1 + q2 * q3), q0q0 - q1q1 - q2q2 + q3q3);
 
-  // Convert yaw to heading (normal compass degrees)   
-  if (angles.yaw < 0) angles.yaw = angles.yaw + 360.0;
-  if (angles.yaw >= 360.0) angles.yaw = angles.yaw - 360.0;
+  // Convert to degrees
+  angles.pitch = radiansToDegrees(angles.pitchRadians);
+  angles.yaw = radiansToDegrees(angles.yawRadians);
+  angles.roll = radiansToDegrees(angles.rollRadians);
 
-  angles.heading = angles.yaw - declination; // You need to subtract a positive declination.
+  // Normalize yaw to compass heading
+  angles.yaw = fmod(angles.yaw + 360.0f, 360.0f);
+  angles.heading = angles.yaw - declination;
 
   return angles;
 }
