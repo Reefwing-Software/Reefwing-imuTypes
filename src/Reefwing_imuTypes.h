@@ -45,12 +45,9 @@
 
 #define LSM9DS1AG_ADDRESS 0x6B  //  Address of accelerometer & gyroscope
 #define LSM9DS1M_ADDRESS  0x1E  //  Address of magnetometer 
-
 #define HTS221_ADDRESS    0x5F  //  Nano 33 BLE Sense Rev 1 Sensor - temp/humidity
 #define HS3003_ADDRESS    0x44  //  Nano 33 BLE Sense Rev 2 Sensor - temp/humidity
-
 #define LSM6DS3_ADDRESS   0x6A  //  Seeed Studios xiao Sense gyro/accelerometer
-
 #define MPU6000_ADDRESS   0x68  //  TDK InvenSense MPU6x00 gyro/accelerometer
 #define MPU6050_ADDRESS   0x68  //  TDK InvenSense MPU6050 gyro/accelerometer
 
